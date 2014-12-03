@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app>
 <head>
   <meta charset="utf-8">
   <title>Bootstrap 3, from LayoutIt!</title>
@@ -7,13 +7,19 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-	<!--link rel="stylesheet/less" href="less/bootstrap.less" type="text/css" /-->
-	<!--link rel="stylesheet/less" href="less/responsive.less" type="text/css" /-->
-	<!--script src="js/less-1.3.3.min.js"></script-->
-	<!--append ‘#!watch’ to the browser URL, then refresh the page. -->
+	
 	
 	<link href="css/bootstrap.min.css" rel="stylesheet">
 	<link href="css/style.css" rel="stylesheet">
+
+	<style>
+	.completed {
+		color : red;
+		text-decoration: line-through;
+		font-weight: bold;
+		font-style: italic;
+	}
+	</style>
 
   <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
   <!--[if lt IE 9]>
@@ -21,15 +27,55 @@
   <![endif]-->
 
   <!-- Fav and touch icons -->
-  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="img/apple-touch-icon-144-precomposed.png">
-  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="img/apple-touch-icon-114-precomposed.png">
-  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="img/apple-touch-icon-72-precomposed.png">
-  <link rel="apple-touch-icon-precomposed" href="img/apple-touch-icon-57-precomposed.png">
-  <link rel="shortcut icon" href="img/favicon.png">
   
 	<script type="text/javascript" src="js/jquery.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/angular.js"></script>
 	<script type="text/javascript" src="js/scripts.js"></script>
+	<script type="text/javascript">
+	function Task(defaults){
+		defaults = defaults || {};
+		this.name = defaults.name || "";
+		this.isCompleted = defaults.isCompleted || false;
+	}
+
+	Task.prototype.toggle = function(){
+		this.isCompleted = !this.isCompleted;
+	}
+
+
+	function taskController($scope){
+		$scope.tasks = [
+			new Task({ name : "Master JavaScript", isCompleted : false}),
+			new Task({ name : "Explore Angular.js", isCompleted : false}),
+			new Task({ name : "Practice jQuery", isCompleted : false})
+		];
+
+		$scope.message = "";
+
+		$scope.addTask = function(newTask){
+			$scope.tasks.push(new Task({name : newTask, isCompleted : false}));
+			$scope.message = "A new task is added";
+		};
+
+		$scope.toggle = function(task){
+			//task.isCompleted = !task.isCompleted;
+			task.toggle();
+		};
+
+		$scope.removeCompleted = function(){
+			$scope.tasks = $scope.tasks.filter(function(t){ return !t.isCompleted});
+			$scope.message = "Zero or more completed tasks are removed";
+		};
+		$scope.getCompletedCount = function(){
+			var count = 0;
+			for(var i=0;i<$scope.tasks.length;i++)
+				if($scope.tasks[i].isCompleted)
+					++count;
+			return count;
+		}
+	}
+	</script>
 </head>
 
 <body>
@@ -44,55 +90,41 @@
 					<a href="#">Categories</a>
 				</li>
 			</ul>
-			<h1 class="text-center">
+			<h1 class="text-left">
 				Task Manager
 			</h1>
 			<div class="row clearfix">
-				<div class="col-md-8 column">
+				<div class="col-md-8 column" data-ng-controller="taskController">
 					<form role="form">
 						<div class="form-group">
-							 <label for="txtTask">Task</label><input type="text" class="form-control" id="txtTask">
+							 <label for="txtTask">Task</label>
+							 <input type="text" class="form-control" id="txtTask" data-ng-model="newTask">
 						</div>
-						<button type="button" class="btn btn-primary">Submit</button>
-						<button type="button" class="btn btn-danger">Remove Completed</button>
+						<button type="button" class="btn btn-primary" data-ng-click="addTask(newTask)">Add Task</button>
+						<button type="button" class="btn btn-danger" data-ng-click="removeCompleted()">Remove Completed</button>
 					</form>
-					<div class="row"></div>
+					<h3 class="text-left">
+						<span>Task List</span>
+						<span>[<span class="completed">{{getCompletedCount()}}</span> / <span>{{tasks.length}}</span>]</span>
+					</h3>
 					<ol>
-						<li>
-							Lorem ipsum dolor sit amet
-						</li>
-						<li>
-							Consectetur adipiscing elit
-						</li>
-						<li>
-							Integer molestie lorem at massa
-						</li>
-						<li>
-							Facilisis in pretium nisl aliquet
-						</li>
-						<li>
-							Nulla volutpat aliquam velit
-						</li>
-						<li>
-							Faucibus porta lacus fringilla vel
-						</li>
-						<li>
-							Aenean sit amet erat nunc
-						</li>
-						<li>
-							Eget porttitor lorem
-						</li>
+						<li data-ng-repeat="item in tasks" 
+							data-ng-click="toggle(item)" 
+							data-ng-class="{completed : item.isCompleted}">{{item}}</li>
 					</ol>
+					<div>{{message}}</div>
 				</div>
 				<div class="col-md-4 column">
+				<h3>Use Cases</h3>
 				<ol>
-					<li>Add new tasks</li>
-					<li>Mark/Unmark a task as completed</li>
-					<li>Remove completed Tasks</li>
-					<li>Display task stats (# of Completed Task / total # of tasks)</li>
-					<li>Display a message whenever a task is manipulated (add or remove)</li>
+					<li class="completed">Add new tasks</li>
+					<li class="completed">Mark/Unmark a task as completed</li>
+					<li class="completed">Remove completed Tasks</li>
+					<li class="completed">Display task stats (# of Completed Task / total # of tasks)</li>
+					<li class="completed">Display a message whenever a task is manipulated (add or remove)</li>
 					<li>Persist the task in the local storage</li>
 				</ol>
+
 				</div>
 			</div>
 		</div>
