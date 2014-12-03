@@ -36,6 +36,7 @@
 	function Task(defaults){
 		defaults = defaults || {};
 		this.name = defaults.name || "";
+		this.id = defaults.id || new Date().getTime().toString();
 		this.isCompleted = defaults.isCompleted || false;
 	}
 
@@ -43,28 +44,56 @@
 		this.isCompleted = !this.isCompleted;
 	}
 
+	function TaskStorage(){
+		var storage = window.localStorage;
+
+		this.getAll = function(){
+			var result = [];
+			for(var i=0;i<storage.length;i++){
+				var taskId = storage.key(i);
+				var taskString = storage.getItem(taskId);
+				var taskData = window.JSON.parse(taskString);
+				var task = new Task(taskData);
+				result.push(task);
+			}
+			return result;
+		};
+		this.save = function(taskData){
+			var newTask = new Task(taskData);
+			storage.setItem(newTask.id, JSON.stringify(newTask));
+			return newTask;
+		};
+		this.remove = function(id){
+			storage.removeItem(id);
+		}
+	}
+
 
 	function taskController($scope){
-		$scope.tasks = [
-			new Task({ name : "Master JavaScript", isCompleted : false}),
-			new Task({ name : "Explore Angular.js", isCompleted : false}),
-			new Task({ name : "Practice jQuery", isCompleted : false})
-		];
+		var taskStorage = new TaskStorage();
+		$scope.tasks = taskStorage.getAll();
 
 		$scope.message = "";
 
 		$scope.addTask = function(newTask){
-			$scope.tasks.push(new Task({name : newTask, isCompleted : false}));
+			var task = taskStorage.save({name : newTask});
+			$scope.tasks.push(task);
 			$scope.message = "A new task is added";
 		};
 
 		$scope.toggle = function(task){
 			//task.isCompleted = !task.isCompleted;
 			task.toggle();
+			taskStorage.save(task);
 		};
 
 		$scope.removeCompleted = function(){
-			$scope.tasks = $scope.tasks.filter(function(t){ return !t.isCompleted});
+			for(var i = $scope.tasks.length-1; i>=0; i--){
+				if ($scope.tasks[i].isCompleted){
+					taskStorage.remove($scope.tasks[i].id);
+					$scope.tasks.splice(i,1);
+				}
+			}
 			$scope.message = "Zero or more completed tasks are removed";
 		};
 		$scope.getCompletedCount = function(){
