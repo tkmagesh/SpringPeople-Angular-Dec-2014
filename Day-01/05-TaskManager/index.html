@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" ng-app>
+<html lang="en" ng-app="taskApp">
 <head>
   <meta charset="utf-8">
   <title>Bootstrap 3, from LayoutIt!</title>
@@ -33,18 +33,25 @@
 	<script type="text/javascript" src="js/angular.js"></script>
 	<script type="text/javascript" src="js/scripts.js"></script>
 	<script type="text/javascript">
-	function Task(defaults){
-		defaults = defaults || {};
-		this.name = defaults.name || "";
-		this.id = defaults.id || new Date().getTime().toString();
-		this.isCompleted = defaults.isCompleted || false;
-	}
 
-	Task.prototype.toggle = function(){
-		this.isCompleted = !this.isCompleted;
-	}
+	angular.module('taskApp', []);
 
-	function TaskStorage(){
+	angular.module('taskApp').factory('Task', function(){
+		function Task(defaults){
+			defaults = defaults || {};
+			this.name = defaults.name || "";
+			this.id = defaults.id || new Date().getTime().toString();
+			this.isCompleted = defaults.isCompleted || false;
+		}
+
+		Task.prototype.toggle = function(){
+			this.isCompleted = !this.isCompleted;
+		};
+		return Task;
+	});
+	
+
+	angular.module('taskApp').service('taskStorage', function TaskStorage(Task){
 		var storage = window.localStorage;
 
 		this.getAll = function(){
@@ -66,11 +73,11 @@
 		this.remove = function(id){
 			storage.removeItem(id);
 		}
-	}
+	});
 
 
-	function taskController($scope){
-		var taskStorage = new TaskStorage();
+	angular.module('taskApp').controller('taskController', function($scope, taskStorage){
+		//var taskStorage = new TaskStorage();
 		$scope.tasks = taskStorage.getAll();
 
 		$scope.message = "";
@@ -103,7 +110,7 @@
 					++count;
 			return count;
 		}
-	}
+	});
 	</script>
 </head>
 
