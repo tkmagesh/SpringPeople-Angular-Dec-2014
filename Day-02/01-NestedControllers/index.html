@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+<head>
+	<meta charset="UTF-8">
+	<title>Scope Inheritence</title>
+	<style>
+	div{
+		margin: 10px;
+		padding : 10px;
+		border-width: 2px;
+		border-style: solid;
+	}
+	.parent{
+		border-color: blue;
+		background-color: lightblue;
+	}
+	.child{
+		border-color: red;
+		background-color: lightpink;
+	}
+	span{
+		display: block;
+	}
+	</style>
+	<script src="angular.js"></script>
+	<script>
+	angular
+		.module('myApp', [])
+		.controller('parentController', function($scope){
+			$scope.data = {
+
+			};
+		})
+		.controller('childController', function($scope){
+			
+		});
+
+	</script>
+</head>
+<body>
+	<div class="parent" data-ng-controller="parentController">
+		<input type="text" data-ng-model="data.name">
+		<span>{{data.name}}</span>
+		<div class="child" ng-controller="childController">
+			<input type="text" data-ng-model="data.name">
+			<span>{{data.name}}</span>
+		</div>
+		<div class="child" ng-controller="childController">
+			<input type="text" data-ng-model="data.name">
+			<span>{{data.name}}</span>
+		</div>
+	</div>
+
+</body>
+</html>
